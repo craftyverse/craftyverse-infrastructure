@@ -1,0 +1,33 @@
+services:
+  mongodb:
+    image: mongo
+    container_name: mongodb
+    networks:
+      - mongo_network
+  craftyverse-auth-service:
+    build: ../../craftyverse-auth-service
+    ports:
+      - "3000:3000"
+      - "27017:27107"
+    volumes:
+      - ../../craftyverse-auth-service/:/usr/app
+      - /usr/app/node_modules
+    env_file:
+      - ../../craftyverse-auth-service/.env.development
+    networks:
+      - mongo_network
+  creatyverse-dashboard:
+    build: ../../craftyverse-dashboard
+    ports:
+      - "5173:5173"
+    volumes:
+      - ../../craftyverse-dashboard/:/usr/app
+      - /usr/app/node_modules
+    env_file:
+      - ../../craftyverse-dashboard/.env.local
+    networks:
+      - mongo_network
+
+networks:
+  mongo_network:
+    driver: bridge
