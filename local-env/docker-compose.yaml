@@ -1,22 +1,76 @@
 services:
   mongodb:
-    image: mongo
+    image: mongo:latest
     container_name: mongodb
+    ports:
+      - "27017:27017" # Expose MongoDB default port
     networks:
-      - mongo_network
+      - node_network
+  # ================================================================================
+  # LOCALSTACK CONFIGURATION
+  # ================================================================================
+  localstack:
+    image: public.ecr.aws/localstack/localstack:latest
+    container_name: craftyverse-localstack
+    ports:
+      - "4566:4566" # Edge port for all LocalStack services
+      - "4510-4599:4510-4599" # Additional ports for services (e.g., S3)
+      - "4571:4571"
+    environment:
+      - DEBUG=1
+      - DATA_DIR=/tmp/localstack/data
+      - LAMBDA_EXECUTOR=docker
+    volumes:
+      - ./localstack_data:/var/lib/localstack/data # For persistent data
+    networks:
+      - node_network
+  # ================================================================================
+  # CRAFTYVERSE AUTH SERVICE CONFIGURATION
+  # ================================================================================
   craftyverse-auth-service:
     build: ../../craftyverse-auth-service
     ports:
       - "3000:3000"
-      - "27017:27107"
     volumes:
       - ../../craftyverse-auth-service/:/usr/app
       - /usr/app/node_modules
     env_file:
       - ../../craftyverse-auth-service/.env.development
     networks:
-      - mongo_network
-  creatyverse-dashboard:
+      - node_network
+
+  # ================================================================================
+  # CRAFTYVERSE MERCHANT CONFIGURATION
+  # ================================================================================
+  craftyverse-merchant-service:
+    build: ../../craftyverse-merchant-service
+    ports:
+      - "4000:4000"
+    volumes:
+      - ../../craftyverse-merchant-service/:/usr/app
+      - /usr/app/node_modules
+    env_file:
+      - ../../craftyverse-merchant-service/.env.development
+    networks:
+      - node_network
+  # ================================================================================
+  # CRAFTYVERSE USER CONFIGURATION
+  # ================================================================================
+  craftyverse-user-service:
+    build: ../../craftyverse-user-service
+    ports:
+      - "9000:9000"
+    volumes:
+      - ../../craftyverse-user-service/:/usr/app
+      - /usr/app/node_modules
+    env_file:
+      - ../../craftyverse-user-service/.env.development
+    networks:
+      - node_network
+  # ================================================================================
+  # CRAFTYVERSE DASHBOARD CONFIGURATION
+  # ================================================================================
+  craftyverse-dashboard:
     build: ../../craftyverse-dashboard
     ports:
       - "5173:5173"
@@ -26,8 +80,12 @@ services:
     env_file:
       - ../../craftyverse-dashboard/.env.local
     networks:
-      - mongo_network
+      - node_network
 
 networks:
-  mongo_network:
+  node_network:
     driver: bridge
+
+volumes:
+  localstack_data:
+    driver: local
