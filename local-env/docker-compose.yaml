@@ -1,4 +1,7 @@
 services:
+  # ================================================================================
+  # MONGODB CONFIGURATION (LOCAL ENV)
+  # ================================================================================
   mongodb:
     image: mongo:latest
     container_name: mongodb
@@ -7,7 +10,27 @@ services:
     networks:
       - node_network
   # ================================================================================
-  # LOCALSTACK CONFIGURATION
+  # MONGODB CONFIGURATION (TEST ENV)
+  # ================================================================================
+  mongodb_test:
+    image: mongo:latest
+    container_name: mongodb-test
+    ports:
+      - "37017:27017" # Expose MongoDB default port
+    networks:
+      - node_network
+  # ================================================================================
+  # REDIS CONFIGURATION (LOCAL ENV)
+  # ================================================================================
+  redis:
+    image: redis:latest
+    container_name: redis
+    ports:
+      - "6379:6379" # Expose Redis default port
+    networks:
+      - node_network
+  # ================================================================================
+  # LOCALSTACK CONFIGURATION (LOCAL ENV)
   # ================================================================================
   localstack:
     image: public.ecr.aws/localstack/localstack:latest
@@ -15,7 +38,7 @@ services:
     ports:
       - "4566:4566" # Edge port for all LocalStack services
       - "4510-4599:4510-4599" # Additional ports for services (e.g., S3)
-      - "4571:4571"
+      - "9001:9001"
     environment:
       - DEBUG=1
       - DATA_DIR=/tmp/localstack/data
@@ -24,6 +47,26 @@ services:
       - ./localstack_data:/var/lib/localstack/data # For persistent data
     networks:
       - node_network
+
+  # ================================================================================
+  # LOCALSTACK CONFIGURATION (LOCAL TEST INTEGRATED ENV)
+  # ================================================================================
+  localstack_test:
+    image: public.ecr.aws/localstack/localstack:latest
+    container_name: craftyverse-localstack-test
+    ports:
+      - "5566:4566" # Edge port for all LocalStack services
+      - "5510-5599:4510-4599" # Additional ports for services (e.g., S3)
+      - "9002:9001"
+    environment:
+      - DEBUG=1
+      - DATA_DIR=/tmp/localstack-test/data
+      - LAMBDA_EXECUTOR=docker
+    volumes:
+      - localstack_test_data:/var/lib/localstack/data # Persistent data for test instance
+    networks:
+      - node_network
+
   # ================================================================================
   # CRAFTYVERSE AUTH SERVICE CONFIGURATION
   # ================================================================================
@@ -88,4 +131,6 @@ networks:
 
 volumes:
   localstack_data:
+    driver: local
+  localstack_test_data:
     driver: local
