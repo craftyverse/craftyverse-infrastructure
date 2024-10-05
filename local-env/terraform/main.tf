@@ -24,6 +24,13 @@ module "user_auth_service" {
   user_created_queue_name = var.user_created_queue_name
 }
 
+module "merchant_service" {
+  source = "./merchant_service"
+
+  merchant_created_topic_name = var.merchant_created_topic_name
+  merchant_created_queue_name = var.merchant_created_queue_name
+}
+
 
 
 
