@@ -43,8 +43,6 @@ services:
       - DEBUG=1
       - DATA_DIR=/tmp/localstack/data
       - LAMBDA_EXECUTOR=docker
-    volumes:
-      - ./localstack_data:/var/lib/localstack/data # For persistent data
     networks:
       - node_network
 
@@ -62,8 +60,6 @@ services:
       - DEBUG=1
       - DATA_DIR=/tmp/localstack-test/data
       - LAMBDA_EXECUTOR=docker
-    volumes:
-      - localstack_test_data:/var/lib/localstack/data # Persistent data for test instance
     networks:
       - node_network
 
@@ -71,14 +67,14 @@ services:
   # CRAFTYVERSE AUTH SERVICE CONFIGURATION
   # ================================================================================
   craftyverse-auth-service:
-    build: ../../craftyverse-auth-service
+    build: ../craftyverse-auth-service
     ports:
       - "3000:3000"
     volumes:
       - ../../craftyverse-auth-service/:/usr/app
       - /usr/app/node_modules
     env_file:
-      - ../../craftyverse-auth-service/.env.development
+      - ../craftyverse-auth-service/.env.development
     networks:
       - node_network
 
@@ -86,42 +82,42 @@ services:
   # CRAFTYVERSE MERCHANT CONFIGURATION
   # ================================================================================
   craftyverse-merchant-service:
-    build: ../../craftyverse-merchant-service
+    build: ../craftyverse-merchant-service
     ports:
       - "4000:4000"
     volumes:
       - ../../craftyverse-merchant-service/:/usr/app
       - /usr/app/node_modules
     env_file:
-      - ../../craftyverse-merchant-service/.env.development
+      - ../craftyverse-merchant-service/.env.development
     networks:
       - node_network
   # ================================================================================
   # CRAFTYVERSE USER CONFIGURATION
   # ================================================================================
   craftyverse-user-service:
-    build: ../../craftyverse-user-service
+    build: ../craftyverse-user-service
     ports:
       - "9000:9000"
     volumes:
       - ../../craftyverse-user-service/:/usr/app
       - /usr/app/node_modules
     env_file:
-      - ../../craftyverse-user-service/.env.development
+      - ../craftyverse-user-service/.env.development
     networks:
       - node_network
   # ================================================================================
   # CRAFTYVERSE DASHBOARD CONFIGURATION
   # ================================================================================
   craftyverse-dashboard:
-    build: ../../craftyverse-dashboard
+    build: ../craftyverse-dashboard
     ports:
       - "5173:5173"
     volumes:
       - ../../craftyverse-dashboard/:/usr/app
       - /usr/app/node_modules
     env_file:
-      - ../../craftyverse-dashboard/.env.local
+      - ../craftyverse-dashboard/.env.local
     networks:
       - node_network
 
